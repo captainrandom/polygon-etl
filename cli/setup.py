@@ -11,7 +11,7 @@ long_description = read('README.md') if os.path.isfile("README.md") else ""
 
 setup(
     name='polygon-etl',
-    version='0.1.8',
+    version='0.1.9',
     author='Evgeny Medvedev',
     author_email='evge.medvedev@gmail.com',
     description='Tools for exporting Polygon blockchain data to CSV or JSON',
@@ -33,13 +33,13 @@ setup(
     # web3.py doesn't work on 3.5.2 and less (https://github.com/ethereum/web3.py/issues/1012)
     python_requires='>=3.5.3,<4',
     install_requires=[
-        'web3==4.7.2',
-        'eth-utils==1.8.4',
-        'eth-abi==1.3.0',
+        'web3==5.29.0',
+        'eth-utils==2.0.0',
+        'eth-abi==2.0.0',
         # TODO: This has to be removed when "ModuleNotFoundError: No module named 'eth_utils.toolz'" is fixed at eth-abi
-        'python-dateutil==2.7.0',
-        'click==7.0',
-        'ethereum-dasm==0.1.4',
+        'python-dateutil==2.8.0',
+        'click==8.0',
+        'ethereum-dasm==0.1.5',
         'base58',
         'requests',
         'blockchain-etl-common==1.6.1',
