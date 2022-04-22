@@ -1,2 +1,11 @@
-polygon-etl==0.1.8
+web3==5.29.0
+eth-utils==1.10.0
+eth-abi==2.1.1
+python-dateutil==2.8.2
+click==8.0.3
+ethereum-dasm==0.1.5
+eth-rlp==0.2.1
+base58
+requests
+blockchain-etl-common==1.6.1
 discord-webhook==0.14.0
