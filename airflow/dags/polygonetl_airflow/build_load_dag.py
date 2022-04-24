@@ -236,7 +236,7 @@ def build_load_dag(
         sql = read_file(sql_path)
         verify_task = BigQueryOperator(
             task_id='verify_{task}'.format(task=task),
-            bql=sql,
+            sql=sql,
             params=environment,
             use_legacy_sql=False,
             dag=dag)

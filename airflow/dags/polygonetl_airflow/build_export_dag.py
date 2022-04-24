@@ -305,25 +305,25 @@ def build_export_dag(
         dependencies=[export_receipts_and_logs_operator],
     )
 
-    export_traces_operator = add_export_task(
-        export_traces_toggle,
-        "export_geth_traces",
-        add_provider_uri_fallback_loop(export_traces_command, provider_uris_archival)
-    )
+    # export_traces_operator = add_export_task(
+    #     export_traces_toggle,
+    #     "export_geth_traces",
+    #     add_provider_uri_fallback_loop(export_traces_command, provider_uris_archival)
+    # )
 
-    extract_contracts_operator = add_export_task(
-        extract_contracts_toggle,
-        "extract_contracts",
-        extract_contracts_command,
-        dependencies=[export_traces_operator],
-    )
+    # extract_contracts_operator = add_export_task(
+    #     extract_contracts_toggle,
+    #     "extract_contracts",
+    #     extract_contracts_command,
+    #     dependencies=[export_traces_operator],
+    # )
 
-    extract_tokens_operator = add_export_task(
-        extract_tokens_toggle,
-        "extract_tokens",
-        add_provider_uri_fallback_loop(extract_tokens_command, provider_uris),
-        dependencies=[extract_contracts_operator],
-    )
+    # extract_tokens_operator = add_export_task(
+    #     extract_tokens_toggle,
+    #     "extract_tokens",
+    #     add_provider_uri_fallback_loop(extract_tokens_command, provider_uris),
+    #     dependencies=[extract_contracts_operator],
+    # )
 
     return dag
 
@@ -352,37 +352,46 @@ MEGABYTE = 1024 * 1024
 # Helps avoid OverflowError: https://stackoverflow.com/questions/47610283/cant-upload-2gb-to-google-cloud-storage
 # https://developers.google.com/api-client-library/python/guide/media_upload#resumable-media-chunked-upload
 def upload_to_gcs(gcs_hook, bucket, object, filename, mime_type='application/octet-stream'):
-    from apiclient.http import MediaFileUpload
+    # from apiclient.http import MediaFileUpload
     from googleapiclient import errors
 
-    service = gcs_hook.get_conn()
+    try:
+        logging.info(f'uploading bucket={bucket} object={object} filename={filename}')
+        gcs_hook.upload(bucket, object, filename, mime_type=mime_type)
+    except errors.HttpError as ex:
+        if ex.resp['status'] == '404':
+            return False
+        raise
 
-    if os.path.getsize(filename) > 10 * MEGABYTE:
-        media = MediaFileUpload(filename, mime_type, resumable=True)
 
-        try:
-            request = service.objects().insert(bucket=bucket, name=object, media_body=media)
-            response = None
-            while response is None:
-                status, response = request.next_chunk()
-                if status:
-                    logging.info("Uploaded %d%%." % int(status.progress() * 100))
+    # service = gcs_hook.get_conn()
 
-            return True
-        except errors.HttpError as ex:
-            if ex.resp['status'] == '404':
-                return False
-            raise
-    else:
-        media = MediaFileUpload(filename, mime_type)
-
-        try:
-            service.objects().insert(bucket=bucket, name=object, media_body=media).execute()
-            return True
-        except errors.HttpError as ex:
-            if ex.resp['status'] == '404':
-                return False
-            raise
+    # if os.path.getsize(filename) > 10 * MEGABYTE:
+    #     media = MediaFileUpload(filename, mime_type, resumable=True)
+    #
+    #     try:
+    #         request = service.objects().insert(bucket=bucket, name=object, media_body=media)
+    #         response = None
+    #         while response is None:
+    #             status, response = request.next_chunk()
+    #             if status:
+    #                 logging.info("Uploaded %d%%." % int(status.progress() * 100))
+    #
+    #         return True
+    #     except errors.HttpError as ex:
+    #         if ex.resp['status'] == '404':
+    #             return False
+    #         raise
+    # else:
+    #     media = MediaFileUpload(filename, mime_type)
+    #
+    #     try:
+    #         service.objects().insert(bucket=bucket, name=object, media_body=media).execute()
+    #         return True
+    #     except errors.HttpError as ex:
+    #         if ex.resp['status'] == '404':
+    #             return False
+    #         raise
 
 
 # Can download big files unlike gcs_hook.download which saves files in memory first
